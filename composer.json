@@ -1,0 +1,67 @@
+{
+    "name": "antidot-fw/antidot-react-psr15",
+    "type": "library",
+    "description": "PSR-11 container implementation made for Antidot Framework",
+    "keywords": [
+        "antidot-fw",
+        "react-php",
+        "PSR-15",
+        "container"
+    ],
+    "homepage": "https://github.com/antidot-fw/container",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Koldo Picaza",
+            "homepage": "https://github.com/kpicaza",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "~7.1",
+        "psr/container": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "react/http": "^0.8.5",
+        "react/promise": "^2.7"
+    },
+    "require-dev": {
+        "franzl/whoops-middleware": "^1.1",
+        "phpro/grumphp": "^0.16.0",
+        "phpstan/phpstan": "^0.11.15",
+        "phpunit/phpunit": ">=7.5",
+        "squizlabs/php_codesniffer": "^3.0",
+        "symfony/var-dumper": "^4.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Antidot\\React\\PSR15\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "AntidotTest\\React\\PSR15\\": "tests"
+        }
+    },
+    "scripts": {
+        "check-all": [
+            "@check-style",
+            "@inspect",
+            "@test"
+        ],
+        "test": "phpunit",
+        "check-style": "phpcs src tests",
+        "fix-style": "phpcbf src tests",
+        "inspect": "phpstan analyse src -l7 --ansi"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "zf": {
+            "config-provider": "Antidot\\React\\PSR15\\Container\\Config\\ConfigProvider"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
