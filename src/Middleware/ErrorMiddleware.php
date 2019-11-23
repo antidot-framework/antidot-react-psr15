@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Antidot\React\PSR15;
+namespace Antidot\React\PSR15\Middleware;
 
 use Antidot\React\PSR15\Response\PromiseResponse;
 use ErrorException;

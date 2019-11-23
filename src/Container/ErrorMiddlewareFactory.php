@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Antidot\React\PSR15\Container;
 
-use Antidot\React\PSR15\ErrorMiddleware;
+use Antidot\React\PSR15\Middleware\ErrorMiddleware;
 use Psr\Container\ContainerInterface;
 
 class ErrorMiddlewareFactory
