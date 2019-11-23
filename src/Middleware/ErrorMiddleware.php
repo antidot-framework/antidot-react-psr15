@@ -28,7 +28,7 @@ class ErrorMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $promise = new Promise(function ($resolver, $canceller) {
+        $promise = new Promise(function ($resolver) {
             $this->setErrorHandler();
             $resolver();
         });

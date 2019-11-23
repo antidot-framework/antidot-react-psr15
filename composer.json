@@ -26,6 +26,7 @@
         "react/promise": "^2.7"
     },
     "require-dev": {
+        "antidot-fw/framework": "^0.0.1",
         "franzl/whoops-middleware": "^1.1",
         "phpro/grumphp": "^0.16.0",
         "phpstan/phpstan": "^0.11.15",
@@ -45,13 +46,13 @@
     },
     "scripts": {
         "check-all": [
-            "@check-style",
+            "@cs-check",
             "@inspect",
             "@test"
         ],
         "test": "phpunit",
-        "check-style": "phpcs src tests",
-        "fix-style": "phpcbf src tests",
+        "cs-check": "phpcs src tests",
+        "cs-fix": "phpcbf src tests",
         "inspect": "phpstan analyse src -l7 --ansi"
     },
     "extra": {
