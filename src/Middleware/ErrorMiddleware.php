@@ -13,12 +13,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use React\Http\Response;
+use React\Promise\FulfilledPromise;
 use React\Promise\Promise;
 use Throwable;
 
 class ErrorMiddleware implements MiddlewareInterface
 {
-    /** @var bool  */
     private $debug;
 
     public function __construct(bool $debug)
@@ -28,20 +28,24 @@ class ErrorMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $promise = new Promise(function ($resolver) {
-            $this->setErrorHandler();
-            $resolver();
-        });
+        $promise = new FulfilledPromise();
 
         return new PromiseResponse($promise->then(function () use ($request, $handler) {
+            $this->setErrorHandler();
             try {
                 if ($this->debug && class_exists(WhoopsMiddleware::class)) {
                     $whoopsMiddleware = new WhoopsMiddleware();
-                    return $whoopsMiddleware->process($request, $handler);
+                    $response = $whoopsMiddleware->process($request, $handler);
+                    restore_error_handler();
+                    return $response;
                 }
 
-                return $handler->handle($request);
+                $response = $handler->handle($request);
+                restore_error_handler();
+
+                return $response;
             } catch (Throwable $exception) {
+                restore_error_handler();
                 return $this->getErrorResponse($exception, $request);
             }
         }));
@@ -57,7 +61,6 @@ class ErrorMiddleware implements MiddlewareInterface
             ?array $errorContext
         ): bool {
             if (! (error_reporting() & $errorNumber)) {
-                // Error is not in mask
                 return false;
             }
             throw new ErrorException($errorString, 0, $errorNumber, $errorFile, $errorLine);
@@ -68,7 +71,6 @@ class ErrorMiddleware implements MiddlewareInterface
 
     private function getErrorResponse(Throwable $exeption, ServerRequestInterface $request): ResponseInterface
     {
-        restore_error_handler();
 
         if ($this->debug && class_exists(WhoopsRunner::class)) {
             $whoops = new WhoopsRunner();
