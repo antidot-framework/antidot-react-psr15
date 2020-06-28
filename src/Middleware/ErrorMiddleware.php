@@ -13,13 +13,13 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use React\Http\Response;
-use React\Promise\FulfilledPromise;
-use React\Promise\Promise;
 use Throwable;
+
+use function React\Promise\resolve;
 
 class ErrorMiddleware implements MiddlewareInterface
 {
-    private $debug;
+    private bool $debug;
 
     public function __construct(bool $debug)
     {
@@ -28,30 +28,38 @@ class ErrorMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $promise = new FulfilledPromise();
+        $debug = $this->debug;
 
-        return new PromiseResponse($promise->then(function () use ($request, $handler) {
-            $this->setErrorHandler();
-            try {
-                if ($this->debug && class_exists(WhoopsMiddleware::class)) {
-                    $whoopsMiddleware = new WhoopsMiddleware();
-                    $response = $whoopsMiddleware->process($request, $handler);
-                    restore_error_handler();
-                    return $response;
-                }
+        return new PromiseResponse(
+            resolve($request)
+                ->then(
+                    static function (ServerRequestInterface $request) use ($handler, $debug) {
+                        self::setErrorHandler();
+                        try {
+                            if ($debug && class_exists(WhoopsMiddleware::class)) {
+                                $response = resolve(new WhoopsMiddleware())
+                                    ->then(
+                                        static fn(WhoopsMiddleware $whoopsMiddleware) =>
+                                            $whoopsMiddleware->process($request, $handler)
+                                    );
+                                restore_error_handler();
+                                return $response;
+                            }
 
-                $response = $handler->handle($request);
-                restore_error_handler();
+                            $response = resolve($handler->handle($request));
+                            restore_error_handler();
 
-                return $response;
-            } catch (Throwable $exception) {
-                restore_error_handler();
-                return $this->getErrorResponse($exception, $request);
-            }
-        }));
+                            return $response;
+                        } catch (Throwable $exception) {
+                            restore_error_handler();
+                            return resolve(self::getErrorResponse($exception, $request, $debug));
+                        }
+                    }
+                )
+        );
     }
 
-    private function setErrorHandler(): void
+    private static function setErrorHandler(): void
     {
         $handler = static function (
             int $errorNumber,
@@ -60,7 +68,7 @@ class ErrorMiddleware implements MiddlewareInterface
             int $errorLine,
             ?array $errorContext
         ): bool {
-            if (! (error_reporting() & $errorNumber)) {
+            if (!(error_reporting() & $errorNumber)) {
                 return false;
             }
             throw new ErrorException($errorString, 0, $errorNumber, $errorFile, $errorLine);
@@ -69,10 +77,12 @@ class ErrorMiddleware implements MiddlewareInterface
         set_error_handler($handler);
     }
 
-    private function getErrorResponse(Throwable $exeption, ServerRequestInterface $request): ResponseInterface
-    {
-
-        if ($this->debug && class_exists(WhoopsRunner::class)) {
+    private static function getErrorResponse(
+        Throwable $exeption,
+        ServerRequestInterface $request,
+        bool $debug
+    ): ResponseInterface {
+        if ($debug && class_exists(WhoopsRunner::class)) {
             $whoops = new WhoopsRunner();
             return $whoops->handle($exeption, $request);
         }

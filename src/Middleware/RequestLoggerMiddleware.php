@@ -10,11 +10,14 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
-use React\Promise\FulfilledPromise;
+
+use function React\Promise\resolve;
+
+use const JSON_THROW_ON_ERROR;
 
 class RequestLoggerMiddleware implements MiddlewareInterface
 {
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
     {
@@ -23,18 +26,18 @@ class RequestLoggerMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $promise = new FulfilledPromise();
+        $logger = $this->logger;
+        return new PromiseResponse(resolve($request)
+            ->then(static function (ServerRequestInterface $request) use ($handler, $logger) {
+                $logger->debug(\json_encode([
+                    'method' => $request->getMethod(),
+                    'target' => $request->getRequestTarget(),
+                    'headers' => $request->getHeaders(),
+                    'query-string' => $request->getQueryParams(),
+                    'body' => (string)$request->getBody()
+                ], JSON_THROW_ON_ERROR));
 
-        return new PromiseResponse($promise->then(function () use ($request, $handler) {
-            $this->logger->debug(\json_encode([
-                'method' => $request->getMethod(),
-                'target' => $request->getRequestTarget(),
-                'headers' => $request->getHeaders(),
-                'query-string' => $request->getQueryParams(),
-                'body' => (string)$request->getBody()
-            ]));
-
-            return $handler->handle($request);
-        }));
+                return $handler->handle($request);
+            }));
     }
 }

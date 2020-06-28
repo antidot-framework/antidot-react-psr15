@@ -9,11 +9,11 @@ use React\Promise\PromiseInterface;
 
 class PromiseResponse extends Response implements PromiseInterface
 {
-    private $promise;
+    private PromiseInterface $promise;
 
     public function __construct(
         PromiseInterface $promise,
-        $body = 'php://tmp',
+        $body = null,
         int $status = 200,
         array $headers = []
     ) {

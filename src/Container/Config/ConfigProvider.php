@@ -16,16 +16,14 @@ class ConfigProvider
     public function __invoke(): array
     {
         return [
-            'dependencies' => [
-                'invokables' => [
-                    ExceptionLoggerMiddleware::class => ExceptionLoggerMiddleware::class,
-                    RequestLoggerMiddleware::class => RequestLoggerMiddleware::class,
-                    RouteDispatcherMiddleware::class => RouteDispatcherMiddleware::class,
-                    RouteNotFoundMiddleware::class => RouteNotFoundMiddleware::class,
-                ],
-                'factories' => [
-                    ErrorMiddleware::class => ErrorMiddlewareFactory::class,
-                ]
+            'services' => [
+                ExceptionLoggerMiddleware::class => ExceptionLoggerMiddleware::class,
+                RequestLoggerMiddleware::class => RequestLoggerMiddleware::class,
+                RouteDispatcherMiddleware::class => RouteDispatcherMiddleware::class,
+                RouteNotFoundMiddleware::class => RouteNotFoundMiddleware::class,
+            ],
+            'factories' => [
+                ErrorMiddleware::class => ErrorMiddlewareFactory::class,
             ],
         ];
     }

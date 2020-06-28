@@ -11,11 +11,12 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use React\Promise\FulfilledPromise;
+
+use function React\Promise\resolve;
 
 final class RouteDispatcherMiddleware implements MiddlewareInterface
 {
-    private $router;
+    private Router $router;
 
     public function __construct(Router $router)
     {
@@ -24,13 +25,8 @@ final class RouteDispatcherMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $promise = new FulfilledPromise();
-
         return new PromiseResponse(
-            $promise
-                ->then(function () use ($request) {
-                    return $this->router->match($request);
-                })
+            resolve($this->router->match($request))
                 ->then(static function (PipedRouteMiddleware $route) use ($request, $handler) {
                     if (true === $route->isFail()) {
                         return $handler->handle($request);
