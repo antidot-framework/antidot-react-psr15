@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Antidot\React\PSR15\Response;
 
-use React\Http\Response;
+use RingCentral\Psr7\Response;
 use React\Promise\PromiseInterface;
 
 class PromiseResponse extends Response implements PromiseInterface
