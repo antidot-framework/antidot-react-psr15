@@ -12,7 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use React\Http\Response;
+use React\Http\Message\Response;
 use Throwable;
 
 use function React\Promise\resolve;

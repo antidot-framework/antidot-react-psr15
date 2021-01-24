@@ -13,6 +13,9 @@ use Antidot\React\PSR15\Middleware\RouteNotFoundMiddleware;
 
 class ConfigProvider
 {
+    /**
+     * @return array<string, array<string, string>>
+     */
     public function __invoke(): array
     {
         return [

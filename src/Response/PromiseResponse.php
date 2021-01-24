@@ -11,6 +11,13 @@ class PromiseResponse extends Response implements PromiseInterface
 {
     private PromiseInterface $promise;
 
+    /**
+     * PromiseResponse constructor.
+     * @param PromiseInterface $promise
+     * @param null $body
+     * @param int $status
+     * @param array<array<string>> $headers
+     */
     public function __construct(
         PromiseInterface $promise,
         $body = null,

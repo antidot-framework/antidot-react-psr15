@@ -40,7 +40,7 @@ class ExceptionLoggerMiddleware implements MiddlewareInterface
                         'line' => $exception->getLine()
                     ], JSON_THROW_ON_ERROR));
 
-                    throw new $exception;
+                    throw $exception;
                 }
             }));
     }

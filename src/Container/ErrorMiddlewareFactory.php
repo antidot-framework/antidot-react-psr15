@@ -9,7 +9,7 @@ use Psr\Container\ContainerInterface;
 
 class ErrorMiddlewareFactory
 {
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): ErrorMiddleware
     {
         return new ErrorMiddleware($container->get('config')['debug']);
     }
